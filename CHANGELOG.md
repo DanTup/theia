@@ -33,7 +33,8 @@ Breaking changes:
   Most browsers define a page as served from secure context if its url has `https` scheme. For local testing `localhost` is treated as a secure context as well.
   Unfortunately, it does not work nicely in FireFox, since it does not treat subdomains of localhost as secure as well, compare to Chrome.
   If you want to test with FireFox you can configure it as described [here](https://github.com/eclipse-theia/theia/pull/6465#issuecomment-556443218).
-
+- [electron] send log output to the output view (desktop version only)
+- functions to read channel contents moved from OutputChannelManager to OutputChannelReaders
 ## v0.12.0
 
 - [cli] added explicit `yargs` dependency [#6443](https://github.com/eclipse-theia/theia/pull/6443)

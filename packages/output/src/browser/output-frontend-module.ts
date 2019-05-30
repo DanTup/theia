@@ -20,13 +20,22 @@ import { WidgetFactory, bindViewContribution } from '@theia/core/lib/browser';
 import { OutputContribution } from './output-contribution';
 import { OutputToolbarContribution } from './output-toolbar-contribution';
 import { OutputChannelManager } from '../common/output-channel';
+import { OutputChannelManagerClient } from './output-channel-manager-client';
 import { bindOutputPreferences } from '../common/output-preferences';
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+
+import { WebSocketConnectionProvider } from '@theia/core/lib/browser';
+import { OutputChannelService, outputChannelServicePath } from '../common/output-protocol';
+import { OutputChannelReaders, OutputChannelReadersClient } from './output-channel-readers';
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
     bindOutputPreferences(bind);
     bind(OutputWidget).toSelf();
-    bind(OutputChannelManager).toSelf().inSingletonScope();
+
+    bind(OutputChannelManagerClient).toSelf().inSingletonScope();
+    bind(OutputChannelManager).toDynamicValue(
+        ctx => ctx.container.get(OutputChannelManagerClient)
+    ).inSingletonScope();
 
     bind(WidgetFactory).toDynamicValue(context => ({
         id: OUTPUT_WIDGET_KIND,
@@ -34,6 +43,16 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
     }));
 
     bindViewContribution(bind, OutputContribution);
+
+    // Support for node-side channels
+    bind(OutputChannelReadersClient).toSelf().inSingletonScope();
+    bind(OutputChannelReaders).toSelf().inSingletonScope();
+    bind(OutputChannelService).toDynamicValue(ctx => {
+        const client = ctx.container.get(OutputChannelReadersClient);
+        return WebSocketConnectionProvider.createProxy<OutputChannelService>(ctx.container, outputChannelServicePath,
+            client);
+    }).inSingletonScope();
+
     bind(OutputToolbarContribution).toSelf().inSingletonScope();
     bind(TabBarToolbarContribution).toService(OutputToolbarContribution);
 });
