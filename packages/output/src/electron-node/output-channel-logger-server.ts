@@ -17,11 +17,12 @@
 import { inject, injectable, postConstruct } from 'inversify';
 import { LoggerWatcher } from '@theia/core/lib/common/logger-watcher';
 import { LogLevelCliContribution } from '@theia/core/lib/node/logger-cli-contribution';
-import { ILoggerServer, ILoggerClient, ConsoleLogger } from '@theia/core/lib/common/logger-protocol';
+import { ILoggerClient, ConsoleLogger } from '@theia/core/lib/common/logger-protocol';
+import { ConsoleLoggerServer } from '@theia/core/lib/node/console-logger-server';
 import { OutputChannelServiceImpl, LogOutputChannel } from '../node/output-channel-service-impl';
 
 @injectable()
-export class OutputChannelLoggerServer implements ILoggerServer {
+export class OutputChannelLoggerServer extends ConsoleLoggerServer {
 
     protected client: ILoggerClient | undefined = undefined;
 
@@ -34,30 +35,9 @@ export class OutputChannelLoggerServer implements ILoggerServer {
     @inject(OutputChannelServiceImpl)
     protected loggerService: OutputChannelServiceImpl;
 
-    protected outputChannel: LogOutputChannel;
-
     @postConstruct()
-    protected init() {
-        for (const name of Object.keys(this.cli.logLevels)) {
-            this.setLogLevel(name, this.cli.logLevels[name]);
-        }
-
-        this.outputChannel = this.loggerService.getChannel('Log (IDE Backend)', 'log');
-    }
-
-    async setLogLevel(name: string, newLogLevel: number): Promise<void> {
-        const event = {
-            loggerName: name,
-            newLogLevel
-        };
-        if (this.client !== undefined) {
-            this.client.onLogLevelChanged(event);
-        }
-        this.watcher.fireLogLevelChanged(event);
-    }
-
-    async getLogLevel(name: string): Promise<number> {
-        return this.cli.logLevelFor(name);
+    protected init(): void {
+        super.init();
     }
 
     // tslint:disable:no-any
@@ -70,26 +50,20 @@ export class OutputChannelLoggerServer implements ILoggerServer {
     }
 
     protected logToOutput(name: string, message: any, params: any[]): void {
+
+        const outputChannel: LogOutputChannel = this.loggerService.getChannel(`Log (${name})`, 'log');
+
         if (typeof message === 'string') {
-            this.outputChannel.appendLine(message);
-        } else if (message instanceof Array) {
+            outputChannel.appendLine(message);
+        } else if (Array.isArray(message)) {
+            // TODO pass in outputChannel so we don't look it up each time?
             message.forEach(line =>
                 this.logToOutput(name, line, params)
             );
         } else {
             const line = JSON.stringify(message);
-            this.outputChannel.appendLine(line);
+            outputChannel.appendLine(line);
         }
-    }
-
-    async child(name: string): Promise<void> {
-        this.setLogLevel(name, this.cli.logLevelFor(name));
-    }
-
-    dispose(): void { }
-
-    setClient(client: ILoggerClient | undefined) {
-        this.client = client;
     }
 
 }

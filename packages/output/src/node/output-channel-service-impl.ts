@@ -27,22 +27,22 @@ interface ChannelData {
     visible: boolean;
 }
 
-const LINES_TO_KEEP = 5000;
-const REMOVAL_SIZE = 100;
-
 @injectable()
 export class OutputChannelServiceImpl implements OutputChannelService {
+    protected static LINES_TO_KEEP = 5000;
+    protected static REMOVAL_SIZE = 100;
+
     private client: OutputChannelClient | undefined;
 
     private channels: Map<string, ChannelData> = new Map();
 
-    public async getChannels(): Promise<{ name: string, group: string }[]> {
+    async getChannels(): Promise<{ name: string, group: string }[]> {
         return Array.from(this.channels.entries()).map(([key, value]) =>
             ({ name: key, group: value.group })
         );
     }
 
-    public getChannel(channelName: string, group: string = 'default'): LogOutputChannel {
+    getChannel(channelName: string, group: string = 'default'): LogOutputChannel {
         const outer = this;
         return {
             appendLine(line: string): void {
@@ -51,7 +51,7 @@ export class OutputChannelServiceImpl implements OutputChannelService {
         };
     }
 
-    public async requestToSendContent(channelName: string): Promise<void> {
+    async requestToSendContent(channelName: string): Promise<void> {
         if (!this.client) {
             throw new Error('request received but client not set');
         }
@@ -72,7 +72,7 @@ export class OutputChannelServiceImpl implements OutputChannelService {
         }
     }
 
-    public log(line: string, channelName: string, group: string) {
+    log(line: string, channelName: string, group: string): void {
         let data = this.channels.get(channelName);
         if (!data) {
             data = { group, lines: [], visible: false };
@@ -87,17 +87,17 @@ export class OutputChannelServiceImpl implements OutputChannelService {
         } else {
             // No client connected yet so store on the backend
             data.lines.push(line);
-            if (data.lines.length > LINES_TO_KEEP + REMOVAL_SIZE) {
-                data.lines = data.lines.slice(REMOVAL_SIZE);
+            if (data.lines.length > OutputChannelServiceImpl.LINES_TO_KEEP + OutputChannelServiceImpl.REMOVAL_SIZE) {
+                data.lines = data.lines.slice(OutputChannelServiceImpl.REMOVAL_SIZE);
             }
         }
     }
 
-    public setClient(client: OutputChannelClient | undefined): void {
+    setClient(client: OutputChannelClient | undefined): void {
         this.client = client;
     }
 
-    public getClient = (): OutputChannelClient => {
+    getClient = (): OutputChannelClient => {
         if (this.client !== undefined) {
             return this.client;
         } else {
@@ -105,7 +105,7 @@ export class OutputChannelServiceImpl implements OutputChannelService {
         }
     }
 
-    public dispose(): void {
+    dispose(): void {
         // Nothing to dispose
     }
 

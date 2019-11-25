@@ -43,11 +43,11 @@ export class OutputChannelReadersClient implements OutputChannelClient {
         this.service.onChannelDeleted(channelName);
     }
 
-    onProcessOutput(line: string, channelName: string) {
+    onProcessOutput(line: string, channelName: string): void {
         this.service.onProcessOutput(line, channelName);
     }
 
-    setService(service: OutputChannelClient) {
+    setService(service: OutputChannelClient): void {
         this.service = service;
     }
 }
@@ -74,7 +74,7 @@ export class OutputChannelReaders implements OutputChannelClient, Disposable {
     @inject(OutputPreferences) protected preferences: OutputPreferences;
 
     @postConstruct()
-    async init() {
+    async init(): Promise<void> {
         this.client.setService(this);
 
         this.toDispose.push(this.frontendChannels.onDidAddChannel(channel => {
@@ -118,12 +118,12 @@ export class OutputChannelReaders implements OutputChannelClient, Disposable {
         this.channelAddedEmitter.fire(channel);
     }
 
-    onChannelDeleted(channelName: string) {
+    onChannelDeleted(channelName: string): void {
         this.backendChannels.delete(channelName);
         this.channelDeleteEmitter.fire({ channelName });
     }
 
-    onProcessOutput(line: string, channelName: string) {
+    onProcessOutput(line: string, channelName: string): void {
         const channel = this.backendChannels.get(channelName);
         if (channel) {
             channel.appendLine(line);

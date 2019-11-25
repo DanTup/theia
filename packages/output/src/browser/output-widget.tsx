@@ -85,7 +85,7 @@ export class OutputWidget extends ReactWidget {
         </React.Fragment>;
     }
 
-    public clear(): void {
+    clear(): void {
         if (this.outputChannelManager.selectedChannel) {
             this.outputChannelManager.selectedChannel.clear();
         }
