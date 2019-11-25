@@ -28,7 +28,6 @@ export class FileNavigatorTree extends FileTree {
 
     @postConstruct()
     protected init(): void {
-        super.initFileTree();
         this.toDispose.push(this.filter.onFilterChanged(() => this.refresh()));
     }
 
@@ -52,7 +51,7 @@ export class FileNavigatorTree extends FileTree {
     }
 
     async createWorkspaceRoot(rootFolder: FileStat, workspaceNode: WorkspaceNode): Promise<WorkspaceRootNode> {
-        const node = (await this.toNode(rootFolder, workspaceNode)) as WorkspaceRootNode;
+        const node = this.toNode(rootFolder, workspaceNode) as WorkspaceRootNode;
         Object.assign(node, {
             visible: workspaceNode.name !== WorkspaceNode.name,
         });

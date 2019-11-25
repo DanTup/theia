@@ -33,6 +33,8 @@ import { PluginDebugService } from './debug/plugin-debug-service';
 import { DebugSchemaUpdater } from '@theia/debug/lib/browser/debug-schema-updater';
 import { MonacoThemingService } from '@theia/monaco/lib/browser/monaco-theming-service';
 import { ColorRegistry } from '@theia/core/lib/browser/color-registry';
+import URI from '@theia/core/lib/common/uri';
+import { IconThemeService } from '@theia/core/lib/browser/icon-theme-service';
 
 @injectable()
 export class PluginContributionHandler {
@@ -86,6 +88,9 @@ export class PluginContributionHandler {
 
     @inject(ColorRegistry)
     protected readonly colors: ColorRegistry;
+
+    @inject(IconThemeService)
+    protected readonly iconThemeService: IconThemeService;
 
     protected readonly commandHandlers = new Map<string, CommandHandler['execute'] | undefined>();
 
@@ -242,6 +247,19 @@ export class PluginContributionHandler {
             const pending = {};
             for (const theme of contributions.themes) {
                 pushContribution(`themes.${theme.uri}`, () => this.monacoThemingService.register(theme, pending));
+            }
+        }
+
+        if (contributions.iconThemes && contributions.iconThemes.length) {
+            for (const iconTheme of contributions.iconThemes) {
+                pushContribution(`iconThemes.${iconTheme.uri}`, () => this.iconThemeService.register({
+                    id: plugin.metadata.model.id + '-' + iconTheme.id,
+                    label: iconTheme.label || new URI(iconTheme.uri).path.base,
+                    description: iconTheme.description,
+                    activate: () => Disposable.NULL
+                    // TODO iconTheme.uri
+                    // TODO iconTheme.uiTheme
+                }));
             }
         }
 
