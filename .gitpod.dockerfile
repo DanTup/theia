@@ -12,6 +12,11 @@ RUN apt-get update \
     && apt-get clean && rm -rf /var/cache/apt/* && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
 USER gitpod
+
+RUN curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip > ~/dart-sdk.zip \
+    && unzip ~/dart-sdk.zip -d ~/dart \
+    && unzip ~/dart-sdk.zip -d ~/dart2
+
 # Apply user-specific settings
 RUN bash -c ". .nvm/nvm.sh \
     && nvm install 10 \
