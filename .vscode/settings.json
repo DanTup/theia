@@ -48,5 +48,9 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.insertFinalNewline": true,
-  "clang-format.language.typescript.enable": false
+  "clang-format.language.typescript.enable": false,
+  "dart.sdkPaths": [
+    "~/dart",
+    "~/dart2"
+  ]
 }
