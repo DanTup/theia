@@ -49,9 +49,5 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.insertFinalNewline": true,
   "clang-format.language.typescript.enable": false,
-  "dart.sdkPath": "/home/gitpod/dart/dart-sdk",
-  "dart.sdkPaths": [
-    "/home/gitpod/dart/dart-sdk",
-    "/home/gitpod/dart2/dart-sdk"
-  ]
+  "dart.flutterSdkPath": "/home/gitpod/flutter"
 }

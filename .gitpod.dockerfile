@@ -13,9 +13,10 @@ RUN apt-get update \
 
 USER gitpod
 
-RUN curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip > ~/dart-sdk.zip \
-    && unzip ~/dart-sdk.zip -d ~/dart \
-    && unzip ~/dart-sdk.zip -d ~/dart2
+RUN git clone https://github.com/flutter/flutter ~/flutter \
+    && ~/flutter/bin/flutter doctor \
+    && ~/flutter/bin/flutter config --enable-web \
+    && ~/flutter/bin/flutter create my_flutter_proj
 
 # Apply user-specific settings
 RUN bash -c ". .nvm/nvm.sh \
