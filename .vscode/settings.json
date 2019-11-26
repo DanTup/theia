@@ -50,7 +50,7 @@
   "files.insertFinalNewline": true,
   "clang-format.language.typescript.enable": false,
   "dart.sdkPaths": [
-    "~/dart",
-    "~/dart2"
+    "~/dart/dart-sdk",
+    "~/dart2/dart-sdk"
   ]
 }
